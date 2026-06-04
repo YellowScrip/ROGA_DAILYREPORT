@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ROGA 每日工作汇报系统</title>
+
+<style>
+:root {
+    --primary: #0f3d5e;
+    --primary-light: #1c6b9e;
+    --accent: #f4b942;
+    --bg: #eef3f8;
+    --card: rgba(255,255,255,0.82);
+    --text: #1f2937;
+    --muted: #6b7280;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --shadow: 0 20px 50px rgba(15, 61, 94, 0.16);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(244,185,66,0.25), transparent 28%),
+        radial-gradient(circle at top right, rgba(28,107,158,0.24), transparent 30%),
+        linear-gradient(135deg, #edf4fb 0%, #f8fbff 50%, #eef3f8 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(10px);
+    opacity: 0.28;
+    animation: floatOrb 12s ease-in-out infinite alternate;
+    z-index: 0;
+}
+
+.orb1 {
+    width: 280px;
+    height: 280px;
+    background: #1c6b9e;
+    left: -90px;
+    top: 120px;
+}
+
+.orb2 {
+    width: 220px;
+    height: 220px;
+    background: #f4b942;
+    right: -70px;
+    bottom: 100px;
+    animation-delay: 2s;
+}
+
+@keyframes floatOrb {
+    from { transform: translateY(0) translateX(0) scale(1); }
+    to { transform: translateY(-45px) translateX(35px) scale(1.08); }
+}
+
+.app {
+    position: relative;
+    z-index: 2;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 60px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 26px;
+    animation: fadeDown 0.7s ease both;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo-mark {
+    width: 70px;
+    height: 70px;
+    border-radius: 22px;
+    background: linear-gradient(145deg, var(--primary), var(--primary-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 1px;
+    box-shadow: 0 16px 36px rgba(15, 61, 94, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-mark::after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 20px;
+    background: rgba(255,255,255,0.35);
+    transform: rotate(-35deg);
+    top: -20px;
+    left: -40px;
+    animation: shine 4s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-80px) rotate(-35deg); }
+    45%,100% { transform: translateX(140px) rotate(-35deg); }
+}
+
+.logo-text h1 {
+    margin: 0;
+    font-size: 30px;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+}
+
+.logo-text p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.date-panel {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 22px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    min-width: 250px;
+}
+
+.date-panel label {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.date-panel input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: var(--primary);
+    background: transparent;
+    font-weight: 700;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 26px;
+    animation: fadeUp 0.8s ease both;
+}
+
+.summary-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.75);
+    backdrop-filter: blur(18px);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    transition: 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(244,185,66,0.12), transparent 55%);
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.summary-card:hover {
+    transform: translateY(-6px);
+}
+
+.summary-card:hover::before {
+    opacity: 1;
+}
+
+.summary-card .label {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.summary-card .value {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.main-card {
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fadeUp 1s ease both;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 26px;
+    background: linear-gradient(135deg, rgba(15,61,94,0.96), rgba(28,107,158,0.92));
+    color: white;
+}
+
+.toolbar h2 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.toolbar p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    opacity: 0.82;
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    border-radius: 14px;
+    padding: 11px 15px;
+    font-weight: 700;
+    transition: 0.25s ease;
+    font-family: inherit;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.btn-light {
+    background: rgba(255,255,255,0.92);
+    color: var(--primary);
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, #f4b942, #ffd978);
+    color: #4b3410;
+}
+
+.btn-blue {
+    background: linear-gradient(135deg, #1c6b9e, #0f3d5e);
+    color: white;
+}
+
+.btn-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.content {
+    padding: 26px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 2fr;
+    gap: 16px;
+    margin-bottom: 26px;
+}
+
+.field {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(15,61,94,0.08);
+    border-radius: 18px;
+    padding: 14px 16px;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.field input,
+.field textarea,
+.task-input,
+.task-result {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 42px;
+}
+
+.section {
+    margin-bottom: 26px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(15,61,94,0.08);
+    background: rgba(255,255,255,0.62);
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, rgba(15,61,94,0.08), rgba(244,185,66,0.12));
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title h3 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 19px;
+}
+
+.badge {
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: rgba(15,61,94,0.1);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.task-list {
+    padding: 16px;
+}
+
+.task-item {
+    display: grid;
+    grid-template-columns: 46px 1.4fr 1fr 120px 86px;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 24px rgba(15,61,94,0.08);
+    animation: taskIn 0.28s ease both;
+    border: 1px solid rgba(15,61,94,0.06);
+}
+
+@keyframes taskIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.status {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: #f3f4f6;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.status.done {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status.pending {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.task-input,
+.task-result {
+    border-bottom: 1px solid rgba(15,61,94,0.12);
+    padding: 8px 4px;
+}
+
+.priority {
+    border: none;
+    outline: none;
+    padding: 10px;
+    border-radius: 12px;
+    background: #f3f7fb;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.footer-note {
+    margin-top: 26px;
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(15,61,94,0.06);
+    color: var(--muted);
+    font-size: 14px;
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .header,
+    .toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .summary-grid,
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .task-item {
+        grid-template-columns: 40px 1fr;
+    }
+
+    .priority,
+    .task-result,
+    .btn-danger {
+        grid-column: span 2;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+
+<div class="app">
+
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-mark" id="logoText">ROGA</div>
+            <div class="logo-text">
+                <h1>ROGA 每日工作汇报系统</h1>
+                <p>Daily Work Report Dashboard · 可编辑 · 可导出 · 可长期保存</p>
+            </div>
+        </div>
+
+        <div class="date-panel">
+            <label>汇报日期</label>
+            <input type="date" id="reportDate">
+        </div>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="label">总任务数</div>
+            <div class="value" id="totalCount">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">已完成</div>
+            <div class="value" id="doneCount">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">进行中 / 待处理</div>
+            <div class="value" id="pendingCount">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">完成率</div>
+            <div class="value" id="rateCount">0%</div>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <div class="toolbar">
+            <div>
+                <h2>今日工作汇报</h2>
+                <p>适合发给老板查看，也适合自己记录每日推进事项。</p>
+            </div>
+            <div class="btn-group">
+                <button class="btn-light" onclick="addTask('morning')">＋ 上午任务</button>
+                <button class="btn-light" onclick="addTask('afternoon')">＋ 下午任务</button>
+                <button class="btn-light" onclick="addTask('evening')">＋ 晚间任务</button>
+                <button class="btn-gold" onclick="exportPremiumHtml()">导出高级 HTML</button>
+                <button class="btn-blue" onclick="exportText()">导出 TXT</button>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <div class="info-grid">
+                <div class="field">
+                    <label>汇报人</label>
+                    <input id="reporter" placeholder="例如：Ying Jie" />
+                </div>
+
+                <div class="field">
+                    <label>汇报对象</label>
+                    <input id="boss" placeholder="例如：Valerie" />
+                </div>
+
+                <div class="field">
+                    <label>今日核心总结</label>
+                    <textarea id="summary" placeholder="例如：今日重点推进 ROGA 中国区招生账号搭建、内容规划与家长沟通准备。"></textarea>
+                </div>
+            </div>
+
+            <div id="sections"></div>
+
+            <div class="footer-note">
+                使用说明：点击 ✅ / ❌ 可以切换任务状态；每个任务都可以填写“工作内容、成果说明、优先级”；数据会自动保存在当前浏览器中。
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+const STORAGE_KEY = "roga_premium_daily_report_v1";
+
+const sectionInfo = {
+    morning: { title: "上午工作", icon: "🌤️" },
+    afternoon: { title: "下午工作", icon: "☀️" },
+    evening: { title: "晚间工作", icon: "🌙" }
+};
+
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || {
+    date: "",
+    reporter: "Ying Jie",
+    boss: "Valerie",
+    summary: "",
+    tasks: {
+        morning: [],
+        afternoon: [],
+        evening: []
+    }
+};
+
+function initDate() {
+    if (!data.date) {
+        const today = new Date();
+        data.date = today.toISOString().slice(0,10);
+    }
+    document.getElementById("reportDate").value = data.date;
+}
+
+function save() {
+    data.date = document.getElementById("reportDate").value;
+    data.reporter = document.getElementById("reporter").value;
+    data.boss = document.getElementById("boss").value;
+    data.summary = document.getElementById("summary").value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    updateStats();
+}
+
+function renderSections() {
+    const container = document.getElementById("sections");
+    container.innerHTML = "";
+
+    Object.keys(sectionInfo).forEach(period => {
+        const section = document.createElement("div");
+        section.className = "section";
+
+        const done = data.tasks[period].filter(t => t.done).length;
+        const total = data.tasks[period].length;
+
+        section.innerHTML = `
+            <div class="section-head">
+                <div class="section-title">
+                    <h3>${sectionInfo[period].icon} ${sectionInfo[period].title}</h3>
+                    <span class="badge">${done}/${total} 已完成</span>
+                </div>
+                <button class="btn-blue" onclick="addTask('${period}')">添加</button>
+            </div>
+            <div class="task-list" id="${period}List"></div>
+        `;
+
+        container.appendChild(section);
+
+        const list = section.querySelector(`#${period}List`);
+
+        if (data.tasks[period].length === 0) {
+            list.innerHTML = `<div class="empty">暂无任务，点击右侧“添加”开始记录。</div>`;
+        } else {
+            data.tasks[period].forEach((task, index) => {
+                const item = document.createElement("div");
+                item.className = "task-item";
+
+                item.innerHTML = `
+                    <div class="status ${task.done ? 'done' : 'pending'}" onclick="toggleTask('${period}', ${index})">
+                        ${task.done ? '✅' : '❌'}
+                    </div>
+
+                    <input class="task-input" 
+                        value="${escapeHtml(task.text)}" 
+                        placeholder="填写工作内容，例如：整理 ROGA 招生系统页面结构"
+                        oninput="updateTask('${period}', ${index}, 'text', this.value)" />
+
+                    <input class="task-result" 
+                        value="${escapeHtml(task.result)}" 
+                        placeholder="填写成果说明，例如：完成首页模块与数据面板设计"
+                        oninput="updateTask('${period}', ${index}, 'result', this.value)" />
+
+                    <select class="priority" onchange="updateTask('${period}', ${index}, 'priority', this.value)">
+                        <option value="高" ${task.priority === "高" ? "selected" : ""}>高优先级</option>
+                        <option value="中" ${task.priority === "中" ? "selected" : ""}>中优先级</option>
+                        <option value="低" ${task.priority === "低" ? "selected" : ""}>低优先级</option>
+                    </select>
+
+                    <button class="btn-danger" onclick="deleteTask('${period}', ${index})">删除</button>
+                `;
+
+                list.appendChild(item);
+            });
+        }
+    });
+
+    updateStats();
+}
+
+function addTask(period) {
+    data.tasks[period].push({
+        text: "",
+        result: "",
+        priority: "中",
+        done: false
+    });
+    save();
+    renderSections();
+}
+
+function deleteTask(period, index) {
+    data.tasks[period].splice(index, 1);
+    save();
+    renderSections();
+}
+
+function toggleTask(period, index) {
+    data.tasks[period][index].done = !data.tasks[period][index].done;
+    save();
+    renderSections();
+}
+
+function updateTask(period, index, field, value) {
+    data.tasks[period][index][field] = value;
+    save();
+}
+
+function updateStats() {
+    const allTasks = [
+        ...data.tasks.morning,
+        ...data.tasks.afternoon,
+        ...data.tasks.evening
+    ];
+
+    const total = allTasks.length;
+    const done = allTasks.filter(t => t.done).length;
+    const pending = total - done;
+    const rate = total === 0 ? 0 : Math.round(done / total * 100);
+
+    document.getElementById("totalCount").textContent = total;
+    document.getElementById("doneCount").textContent = done;
+    document.getElementById("pendingCount").textContent = pending;
+    document.getElementById("rateCount").textContent = rate + "%";
+}
+
+function exportText() {
+    save();
+
+    let text = "";
+    text += `ROGA 每日工作汇报\n`;
+    text += `日期：${data.date}\n`;
+    text += `汇报人：${data.reporter}\n`;
+    text += `汇报对象：${data.boss}\n\n`;
+    text += `今日核心总结：\n${data.summary || "暂无"}\n\n`;
+
+    Object.keys(sectionInfo).forEach(period => {
+        text += `【${sectionInfo[period].title}】\n`;
+        data.tasks[period].forEach((task, i) => {
+            text += `${i + 1}. ${task.done ? "✅ 已完成" : "❌ 未完成"}｜${task.priority}优先级\n`;
+            text += `工作内容：${task.text || "未填写"}\n`;
+            text += `成果说明：${task.result || "未填写"}\n\n`;
+        });
+    });
+
+    downloadFile(text, `ROGA_每日工作汇报_${data.date}.txt`, "text/plain;charset=utf-8");
+}
+
+function exportPremiumHtml() {
+    save();
+
+    const allTasks = [
+        ...data.tasks.morning,
+        ...data.tasks.afternoon,
+        ...data.tasks.evening
+    ];
+
+    const total = allTasks.length;
+    const done = allTasks.filter(t => t.done).length;
+    const pending = total - done;
+    const rate = total === 0 ? 0 : Math.round(done / total * 100);
+
+    let taskHtml = "";
+
+    Object.keys(sectionInfo).forEach(period => {
+        taskHtml += `
+        <section class="report-section">
+            <div class="report-section-title">
+                <h2>${sectionInfo[period].icon} ${sectionInfo[period].title}</h2>
+                <span>${data.tasks[period].filter(t => t.done).length}/${data.tasks[period].length} 已完成</span>
+            </div>
+        `;
+
+        if (data.tasks[period].length === 0) {
+            taskHtml += `<p class="empty-export">暂无记录</p>`;
+        } else {
+            data.tasks[period].forEach((task, i) => {
+                taskHtml += `
+                <div class="export-task">
+                    <div class="export-task-top">
+                        <strong>${i + 1}. ${task.text || "未填写工作内容"}</strong>
+                        <span class="${task.done ? "done" : "pending"}">${task.done ? "已完成" : "未完成"}</span>
+                    </div>
+                    <p><b>成果说明：</b>${task.result || "未填写"}</p>
+                    <p><b>优先级：</b>${task.priority}</p>
+                </div>
+                `;
+            });
+        }
+
+        taskHtml += `</section>`;
+    });
+
+    const html = `
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>ROGA 每日工作汇报 ${data.date}</title>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    background: #eef3f8;
+    color: #1f2937;
+}
+.report-page {
+    max-width: 980px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(15,61,94,0.18);
+}
+.report-cover {
+    padding: 42px;
+    color: white;
+    background:
+        radial-gradient(circle at top right, rgba(244,185,66,0.55), transparent 25%),
+        linear-gradient(135deg, #0f3d5e, #1c6b9e);
+}
+.report-logo {
+    width: 78px;
+    height: 78px;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 22px;
+    border: 1px solid rgba(255,255,255,0.35);
+}
+.report-cover h1 {
+    margin: 0;
+    font-size: 34px;
+}
+.report-cover p {
+    margin: 12px 0 0;
+    opacity: 0.88;
+}
+.report-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 28px 42px;
+    background: #f8fbff;
+}
+.meta-card {
+    border-radius: 18px;
+    background: white;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15,61,94,0.08);
+}
+.meta-card small {
+    display: block;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+.meta-card strong {
+    font-size: 22px;
+    color: #0f3d5e;
+}
+.report-content {
+    padding: 34px 42px 46px;
+}
+.summary-box {
+    padding: 22px;
+    background: #f8fbff;
+    border-left: 6px solid #f4b942;
+    border-radius: 18px;
+    margin-bottom: 30px;
+}
+.summary-box h2 {
+    margin: 0 0 10px;
+    color: #0f3d5e;
+}
+.report-section {
+    margin-bottom: 30px;
+}
+.report-section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5eef6;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+.report-section-title h2 {
+    margin: 0;
+    color: #0f3d5e;
+    font-size: 22px;
+}
+.report-section-title span {
+    background: #e5f2fb;
+    color: #0f3d5e;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+.export-task {
+    border: 1px solid #e5eef6;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #ffffff, #f8fbff);
+}
+.export-task-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+}
+.export-task-top strong {
+    color: #1f2937;
+    font-size: 17px;
+}
+.export-task p {
+    margin: 10px 0 0;
+    color: #4b5563;
+}
+.done {
+    background: #dcfce7;
+    color: #15803d;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.pending {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.empty-export {
+    color: #6b7280;
+    background: #f8fbff;
+    padding: 18px;
+    border-radius: 14px;
+}
+.footer {
+    padding: 24px 42px;
+    background: #0f3d5e;
+    color: white;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+}
+@media print {
+    body {
+        background: white;
+    }
+    .report-page {
+        box-shadow: none;
+        margin: 0;
+        border-radius: 0;
+    }
+}
+</style>
+</head>
+<body>
+<div class="report-page">
+
+    <div class="report-cover">
+        <div class="report-logo">ROGA</div>
+        <h1>ROGA 每日工作汇报</h1>
+        <p>Daily Work Report · ${data.date}</p>
+        <p>汇报人：${escapeHtml(data.reporter || "未填写")}　｜　汇报对象：${escapeHtml(data.boss || "未填写")}</p>
+    </div>
+
+    <div class="report-meta">
+        <div class="meta-card">
+            <small>总任务数</small>
+            <strong>${total}</strong>
+        </div>
+        <div class="meta-card">
+            <small>已完成</small>
+            <strong>${done}</strong>
+        </div>
+        <div class="meta-card">
+            <small>待处理</small>
+            <strong>${pending}</strong>
+        </div>
+        <div class="meta-card">
+            <small>完成率</small>
+            <strong>${rate}%</strong>
+        </div>
+    </div>
+
+    <div class="report-content">
+        <div class="summary-box">
+            <h2>今日核心总结</h2>
+            <p>${escapeHtml(data.summary || "暂无总结")}</p>
+        </div>
+
+        ${taskHtml}
+    </div>
+
+    <div class="footer">
+        <span>ROGA Education · Internal Daily Report</span>
+        <span>Generated by ROGA Work Report Dashboard</span>
+    </div>
+
+</div>
+</body>
+</html>
+`;
+
+    downloadFile(html, `ROGA_高级每日工作汇报_${data.date}.html`, "text/html;charset=utf-8");
+}
+
+function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function escapeHtml(str) {
+    return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+document.getElementById("reportDate").addEventListener("input", save);
+document.getElementById("reporter").addEventListener("input", save);
+document.getElementById("boss").addEventListener("input", save);
+document.getElementById("summary").addEventListener("input", save);
+
+initDate();
+
+document.getElementById("reporter").value = data.reporter;
+document.getElementById("boss").value = data.boss;
+document.getElementById("summary").value = data.summary;
+
+renderSections();
+save();
+</script>
+
+</body>
+</html>
