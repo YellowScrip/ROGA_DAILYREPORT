@@ -143,24 +143,51 @@ body {
     border-radius: 22px;
     padding: 16px 20px;
     box-shadow: var(--shadow);
-    min-width: 250px;
+    min-width: 320px;
 }
 
 .date-panel label {
     display: block;
     color: var(--muted);
     font-size: 13px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.date-switcher {
+    display: grid;
+    grid-template-columns: 42px 1fr 42px;
+    gap: 10px;
+    align-items: center;
+}
+
+.date-switcher button {
+    height: 42px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0f3d5e, #1c6b9e);
+    color: white;
+    font-size: 18px;
+    padding: 0;
 }
 
 .date-panel input {
     width: 100%;
+    height: 42px;
     border: none;
     outline: none;
     font-size: 16px;
     color: var(--primary);
-    background: transparent;
+    background: rgba(255,255,255,0.68);
     font-weight: 700;
+    border-radius: 14px;
+    padding: 0 12px;
+    text-align: center;
+}
+
+.current-day-text {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
 }
 
 .summary-grid {
@@ -289,7 +316,7 @@ button:hover {
 
 .info-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1.2fr 2fr;
+    grid-template-columns: 1fr 1fr 2fr;
     gap: 16px;
     margin-bottom: 26px;
 }
@@ -326,7 +353,7 @@ button:hover {
     min-height: 42px;
 }
 
-.section {
+.daily-section {
     margin-bottom: 26px;
     border-radius: 24px;
     overflow: hidden;
@@ -334,7 +361,7 @@ button:hover {
     background: rgba(255,255,255,0.62);
 }
 
-.section-head {
+.daily-section-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -342,16 +369,16 @@ button:hover {
     background: linear-gradient(135deg, rgba(15,61,94,0.08), rgba(244,185,66,0.12));
 }
 
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.section-title h3 {
+.daily-title h3 {
     margin: 0;
     color: var(--primary);
     font-size: 19px;
+}
+
+.daily-title p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
 }
 
 .badge {
@@ -369,7 +396,7 @@ button:hover {
 
 .task-item {
     display: grid;
-    grid-template-columns: 46px 1.4fr 1fr 120px 86px;
+    grid-template-columns: 46px 1.35fr 1fr 120px 86px;
     gap: 12px;
     align-items: center;
     background: white;
@@ -426,7 +453,7 @@ button:hover {
 }
 
 .empty {
-    padding: 24px;
+    padding: 32px 20px;
     text-align: center;
     color: var(--muted);
     font-size: 14px;
@@ -463,6 +490,11 @@ button:hover {
         grid-template-columns: 1fr;
     }
 
+    .date-panel {
+        width: 100%;
+        min-width: auto;
+    }
+
     .task-item {
         grid-template-columns: 40px 1fr;
     }
@@ -484,22 +516,27 @@ button:hover {
 
     <div class="header">
         <div class="logo-area">
-            <div class="logo-mark" id="logoText">ROGA</div>
+            <div class="logo-mark">ROGA</div>
             <div class="logo-text">
                 <h1>ROGA 每日工作汇报系统</h1>
-                <p>Daily Work Report Dashboard · 可编辑 · 可导出 · 可长期保存</p>
+                <p>Daily Work Report Dashboard · 每日计划 · 左右翻页 · 当天导出</p>
             </div>
         </div>
 
         <div class="date-panel">
-            <label>汇报日期</label>
-            <input type="date" id="reportDate">
+            <label>当前查看日期</label>
+            <div class="date-switcher">
+                <button onclick="changeDate(-1)" title="前一天">‹</button>
+                <input type="date" id="reportDate">
+                <button onclick="changeDate(1)" title="后一天">›</button>
+            </div>
+            <div class="current-day-text" id="dateText"></div>
         </div>
     </div>
 
     <div class="summary-grid">
         <div class="summary-card">
-            <div class="label">总任务数</div>
+            <div class="label">当天任务数</div>
             <div class="value" id="totalCount">0</div>
         </div>
         <div class="summary-card">
@@ -511,7 +548,7 @@ button:hover {
             <div class="value" id="pendingCount">0</div>
         </div>
         <div class="summary-card">
-            <div class="label">完成率</div>
+            <div class="label">当天完成率</div>
             <div class="value" id="rateCount">0%</div>
         </div>
     </div>
@@ -519,15 +556,13 @@ button:hover {
     <div class="main-card">
         <div class="toolbar">
             <div>
-                <h2>今日工作汇报</h2>
-                <p>适合发给老板查看，也适合自己记录每日推进事项。</p>
+                <h2 id="mainTitle">今日工作内容</h2>
+                <p>通过左右按钮快速切换日期，每一天的工作内容会独立保存。</p>
             </div>
             <div class="btn-group">
-                <button class="btn-light" onclick="addTask('morning')">＋ 上午任务</button>
-                <button class="btn-light" onclick="addTask('afternoon')">＋ 下午任务</button>
-                <button class="btn-light" onclick="addTask('evening')">＋ 晚间任务</button>
-                <button class="btn-gold" onclick="exportPremiumHtml()">导出高级 HTML</button>
-                <button class="btn-blue" onclick="exportText()">导出 TXT</button>
+                <button class="btn-light" onclick="addTask()">＋ 添加当天任务</button>
+                <button class="btn-gold" onclick="exportPremiumHtml()">导出当天高级 HTML</button>
+                <button class="btn-blue" onclick="exportText()">导出当天 TXT</button>
             </div>
         </div>
 
@@ -545,15 +580,28 @@ button:hover {
                 </div>
 
                 <div class="field">
-                    <label>今日核心总结</label>
-                    <textarea id="summary" placeholder="例如：今日重点推进 ROGA 中国区招生账号搭建、内容规划与家长沟通准备。"></textarea>
+                    <label>当天核心总结</label>
+                    <textarea id="summary" placeholder="例如：今日重点推进 ROGA 招生系统、内容运营、家长沟通、课程规划等工作。"></textarea>
                 </div>
             </div>
 
-            <div id="sections"></div>
+            <div class="daily-section">
+                <div class="daily-section-head">
+                    <div class="daily-title">
+                        <h3 id="dailySectionTitle">📌 当天工作计划表</h3>
+                        <p id="dailySectionSubtitle">记录这一天所有需要完成和已经完成的事项。</p>
+                    </div>
+                    <div>
+                        <span class="badge" id="dailyBadge">0/0 已完成</span>
+                        <button class="btn-blue" onclick="addTask()" style="margin-left:10px;">添加</button>
+                    </div>
+                </div>
+
+                <div class="task-list" id="taskList"></div>
+            </div>
 
             <div class="footer-note">
-                使用说明：点击 ✅ / ❌ 可以切换任务状态；每个任务都可以填写“工作内容、成果说明、优先级”；数据会自动保存在当前浏览器中。
+                使用说明：左上方日期区域可以点击 ‹ / › 切换前一天或后一天；每一天的数据独立保存。点击 ✅ / ❌ 可以切换任务状态。导出按钮只导出当前日期的汇报内容。
             </div>
 
         </div>
@@ -561,145 +609,171 @@ button:hover {
 </div>
 
 <script>
-const STORAGE_KEY = "roga_premium_daily_report_v1";
+const STORAGE_KEY = "roga_daily_report_by_date_v2";
 
-const sectionInfo = {
-    morning: { title: "上午工作", icon: "🌤️" },
-    afternoon: { title: "下午工作", icon: "☀️" },
-    evening: { title: "晚间工作", icon: "🌙" }
+let appData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || {
+    global: {
+        reporter: "Ying Jie",
+        boss: "Valerie"
+    },
+    reports: {}
 };
 
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || {
-    date: "",
-    reporter: "Ying Jie",
-    boss: "Valerie",
-    summary: "",
-    tasks: {
-        morning: [],
-        afternoon: [],
-        evening: []
-    }
-};
+let currentDate = getToday();
 
-function initDate() {
-    if (!data.date) {
-        const today = new Date();
-        data.date = today.toISOString().slice(0,10);
+function getToday() {
+    const today = new Date();
+    return formatDate(today);
+}
+
+function formatDate(dateObj) {
+    const y = dateObj.getFullYear();
+    const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const d = String(dateObj.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+function getDateObject(dateStr) {
+    const [y, m, d] = dateStr.split("-").map(Number);
+    return new Date(y, m - 1, d);
+}
+
+function getCurrentReport() {
+    if (!appData.reports[currentDate]) {
+        appData.reports[currentDate] = {
+            summary: "",
+            tasks: []
+        };
     }
-    document.getElementById("reportDate").value = data.date;
+    return appData.reports[currentDate];
 }
 
 function save() {
-    data.date = document.getElementById("reportDate").value;
-    data.reporter = document.getElementById("reporter").value;
-    data.boss = document.getElementById("boss").value;
-    data.summary = document.getElementById("summary").value;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    appData.global.reporter = document.getElementById("reporter").value;
+    appData.global.boss = document.getElementById("boss").value;
+    getCurrentReport().summary = document.getElementById("summary").value;
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
     updateStats();
 }
 
-function renderSections() {
-    const container = document.getElementById("sections");
-    container.innerHTML = "";
+function loadDate(dateStr) {
+    currentDate = dateStr;
+    getCurrentReport();
 
-    Object.keys(sectionInfo).forEach(period => {
-        const section = document.createElement("div");
-        section.className = "section";
+    document.getElementById("reportDate").value = currentDate;
+    document.getElementById("reporter").value = appData.global.reporter || "";
+    document.getElementById("boss").value = appData.global.boss || "";
+    document.getElementById("summary").value = getCurrentReport().summary || "";
 
-        const done = data.tasks[period].filter(t => t.done).length;
-        const total = data.tasks[period].length;
-
-        section.innerHTML = `
-            <div class="section-head">
-                <div class="section-title">
-                    <h3>${sectionInfo[period].icon} ${sectionInfo[period].title}</h3>
-                    <span class="badge">${done}/${total} 已完成</span>
-                </div>
-                <button class="btn-blue" onclick="addTask('${period}')">添加</button>
-            </div>
-            <div class="task-list" id="${period}List"></div>
-        `;
-
-        container.appendChild(section);
-
-        const list = section.querySelector(`#${period}List`);
-
-        if (data.tasks[period].length === 0) {
-            list.innerHTML = `<div class="empty">暂无任务，点击右侧“添加”开始记录。</div>`;
-        } else {
-            data.tasks[period].forEach((task, index) => {
-                const item = document.createElement("div");
-                item.className = "task-item";
-
-                item.innerHTML = `
-                    <div class="status ${task.done ? 'done' : 'pending'}" onclick="toggleTask('${period}', ${index})">
-                        ${task.done ? '✅' : '❌'}
-                    </div>
-
-                    <input class="task-input" 
-                        value="${escapeHtml(task.text)}" 
-                        placeholder="填写工作内容，例如：整理 ROGA 招生系统页面结构"
-                        oninput="updateTask('${period}', ${index}, 'text', this.value)" />
-
-                    <input class="task-result" 
-                        value="${escapeHtml(task.result)}" 
-                        placeholder="填写成果说明，例如：完成首页模块与数据面板设计"
-                        oninput="updateTask('${period}', ${index}, 'result', this.value)" />
-
-                    <select class="priority" onchange="updateTask('${period}', ${index}, 'priority', this.value)">
-                        <option value="高" ${task.priority === "高" ? "selected" : ""}>高优先级</option>
-                        <option value="中" ${task.priority === "中" ? "selected" : ""}>中优先级</option>
-                        <option value="低" ${task.priority === "低" ? "selected" : ""}>低优先级</option>
-                    </select>
-
-                    <button class="btn-danger" onclick="deleteTask('${period}', ${index})">删除</button>
-                `;
-
-                list.appendChild(item);
-            });
-        }
-    });
-
-    updateStats();
+    updateDateText();
+    renderTasks();
+    save();
 }
 
-function addTask(period) {
-    data.tasks[period].push({
+function updateDateText() {
+    const dateObj = getDateObject(currentDate);
+    const weekMap = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+    const week = weekMap[dateObj.getDay()];
+
+    document.getElementById("dateText").textContent = `${currentDate} · ${week}`;
+    document.getElementById("mainTitle").textContent = `${currentDate} 工作内容`;
+    document.getElementById("dailySectionTitle").textContent = `📌 ${currentDate} 工作计划表`;
+}
+
+function changeDate(offset) {
+    save();
+
+    const dateObj = getDateObject(currentDate);
+    dateObj.setDate(dateObj.getDate() + offset);
+
+    loadDate(formatDate(dateObj));
+}
+
+function addTask() {
+    const report = getCurrentReport();
+
+    report.tasks.push({
         text: "",
         result: "",
         priority: "中",
         done: false
     });
+
     save();
-    renderSections();
+    renderTasks();
 }
 
-function deleteTask(period, index) {
-    data.tasks[period].splice(index, 1);
+function deleteTask(index) {
+    const report = getCurrentReport();
+    report.tasks.splice(index, 1);
+
     save();
-    renderSections();
+    renderTasks();
 }
 
-function toggleTask(period, index) {
-    data.tasks[period][index].done = !data.tasks[period][index].done;
+function toggleTask(index) {
+    const report = getCurrentReport();
+    report.tasks[index].done = !report.tasks[index].done;
+
     save();
-    renderSections();
+    renderTasks();
 }
 
-function updateTask(period, index, field, value) {
-    data.tasks[period][index][field] = value;
+function updateTask(index, field, value) {
+    const report = getCurrentReport();
+    report.tasks[index][field] = value;
+
     save();
+}
+
+function renderTasks() {
+    const list = document.getElementById("taskList");
+    const report = getCurrentReport();
+    list.innerHTML = "";
+
+    if (report.tasks.length === 0) {
+        list.innerHTML = `<div class="empty">当天暂无任务。点击“添加当天任务”开始记录。</div>`;
+    } else {
+        report.tasks.forEach((task, index) => {
+            const item = document.createElement("div");
+            item.className = "task-item";
+
+            item.innerHTML = `
+                <div class="status ${task.done ? "done" : "pending"}" onclick="toggleTask(${index})">
+                    ${task.done ? "✅" : "❌"}
+                </div>
+
+                <input class="task-input"
+                    value="${escapeHtml(task.text)}"
+                    placeholder="填写当天工作内容，例如：整理 ROGA 招生系统页面结构"
+                    oninput="updateTask(${index}, 'text', this.value)" />
+
+                <input class="task-result"
+                    value="${escapeHtml(task.result)}"
+                    placeholder="填写成果说明，例如：完成首页模块与数据面板设计"
+                    oninput="updateTask(${index}, 'result', this.value)" />
+
+                <select class="priority" onchange="updateTask(${index}, 'priority', this.value)">
+                    <option value="高" ${task.priority === "高" ? "selected" : ""}>高优先级</option>
+                    <option value="中" ${task.priority === "中" ? "selected" : ""}>中优先级</option>
+                    <option value="低" ${task.priority === "低" ? "selected" : ""}>低优先级</option>
+                </select>
+
+                <button class="btn-danger" onclick="deleteTask(${index})">删除</button>
+            `;
+
+            list.appendChild(item);
+        });
+    }
+
+    updateStats();
 }
 
 function updateStats() {
-    const allTasks = [
-        ...data.tasks.morning,
-        ...data.tasks.afternoon,
-        ...data.tasks.evening
-    ];
-
-    const total = allTasks.length;
-    const done = allTasks.filter(t => t.done).length;
+    const report = getCurrentReport();
+    const total = report.tasks.length;
+    const done = report.tasks.filter(t => t.done).length;
     const pending = total - done;
     const rate = total === 0 ? 0 : Math.round(done / total * 100);
 
@@ -707,81 +781,69 @@ function updateStats() {
     document.getElementById("doneCount").textContent = done;
     document.getElementById("pendingCount").textContent = pending;
     document.getElementById("rateCount").textContent = rate + "%";
+    document.getElementById("dailyBadge").textContent = `${done}/${total} 已完成`;
 }
 
 function exportText() {
     save();
 
+    const report = getCurrentReport();
+
     let text = "";
     text += `ROGA 每日工作汇报\n`;
-    text += `日期：${data.date}\n`;
-    text += `汇报人：${data.reporter}\n`;
-    text += `汇报对象：${data.boss}\n\n`;
-    text += `今日核心总结：\n${data.summary || "暂无"}\n\n`;
+    text += `日期：${currentDate}\n`;
+    text += `汇报人：${appData.global.reporter || "未填写"}\n`;
+    text += `汇报对象：${appData.global.boss || "未填写"}\n\n`;
+    text += `当天核心总结：\n${report.summary || "暂无"}\n\n`;
+    text += `【当天工作内容】\n`;
 
-    Object.keys(sectionInfo).forEach(period => {
-        text += `【${sectionInfo[period].title}】\n`;
-        data.tasks[period].forEach((task, i) => {
+    if (report.tasks.length === 0) {
+        text += `暂无任务记录\n`;
+    } else {
+        report.tasks.forEach((task, i) => {
             text += `${i + 1}. ${task.done ? "✅ 已完成" : "❌ 未完成"}｜${task.priority}优先级\n`;
             text += `工作内容：${task.text || "未填写"}\n`;
             text += `成果说明：${task.result || "未填写"}\n\n`;
         });
-    });
+    }
 
-    downloadFile(text, `ROGA_每日工作汇报_${data.date}.txt`, "text/plain;charset=utf-8");
+    downloadFile(text, `ROGA_每日工作汇报_${currentDate}.txt`, "text/plain;charset=utf-8");
 }
 
 function exportPremiumHtml() {
     save();
 
-    const allTasks = [
-        ...data.tasks.morning,
-        ...data.tasks.afternoon,
-        ...data.tasks.evening
-    ];
-
-    const total = allTasks.length;
-    const done = allTasks.filter(t => t.done).length;
+    const report = getCurrentReport();
+    const total = report.tasks.length;
+    const done = report.tasks.filter(t => t.done).length;
     const pending = total - done;
     const rate = total === 0 ? 0 : Math.round(done / total * 100);
 
     let taskHtml = "";
 
-    Object.keys(sectionInfo).forEach(period => {
-        taskHtml += `
-        <section class="report-section">
-            <div class="report-section-title">
-                <h2>${sectionInfo[period].icon} ${sectionInfo[period].title}</h2>
-                <span>${data.tasks[period].filter(t => t.done).length}/${data.tasks[period].length} 已完成</span>
-            </div>
-        `;
-
-        if (data.tasks[period].length === 0) {
-            taskHtml += `<p class="empty-export">暂无记录</p>`;
-        } else {
-            data.tasks[period].forEach((task, i) => {
-                taskHtml += `
-                <div class="export-task">
-                    <div class="export-task-top">
-                        <strong>${i + 1}. ${task.text || "未填写工作内容"}</strong>
-                        <span class="${task.done ? "done" : "pending"}">${task.done ? "已完成" : "未完成"}</span>
-                    </div>
-                    <p><b>成果说明：</b>${task.result || "未填写"}</p>
-                    <p><b>优先级：</b>${task.priority}</p>
+    if (report.tasks.length === 0) {
+        taskHtml = `<p class="empty-export">暂无任务记录</p>`;
+    } else {
+        report.tasks.forEach((task, i) => {
+            taskHtml += `
+            <div class="export-task">
+                <div class="export-task-top">
+                    <strong>${i + 1}. ${escapeHtml(task.text || "未填写工作内容")}</strong>
+                    <span class="${task.done ? "done" : "pending"}">${task.done ? "已完成" : "未完成"}</span>
                 </div>
-                `;
-            });
-        }
-
-        taskHtml += `</section>`;
-    });
+                <p><b>成果说明：</b>${escapeHtml(task.result || "未填写")}</p>
+                <p><b>优先级：</b>${escapeHtml(task.priority || "中")}</p>
+            </div>
+            `;
+        });
+    }
 
     const html = `
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>ROGA 每日工作汇报 ${data.date}</title>
+<title>ROGA 每日工作汇报 ${currentDate}</title>
 <style>
 body {
     margin: 0;
@@ -862,9 +924,6 @@ body {
 .summary-box h2 {
     margin: 0 0 10px;
     color: #0f3d5e;
-}
-.report-section {
-    margin-bottom: 30px;
 }
 .report-section-title {
     display: flex;
@@ -955,13 +1014,13 @@ body {
     <div class="report-cover">
         <div class="report-logo">ROGA</div>
         <h1>ROGA 每日工作汇报</h1>
-        <p>Daily Work Report · ${data.date}</p>
-        <p>汇报人：${escapeHtml(data.reporter || "未填写")}　｜　汇报对象：${escapeHtml(data.boss || "未填写")}</p>
+        <p>Daily Work Report · ${currentDate}</p>
+        <p>汇报人：${escapeHtml(appData.global.reporter || "未填写")}　｜　汇报对象：${escapeHtml(appData.global.boss || "未填写")}</p>
     </div>
 
     <div class="report-meta">
         <div class="meta-card">
-            <small>总任务数</small>
+            <small>当天任务数</small>
             <strong>${total}</strong>
         </div>
         <div class="meta-card">
@@ -980,8 +1039,13 @@ body {
 
     <div class="report-content">
         <div class="summary-box">
-            <h2>今日核心总结</h2>
-            <p>${escapeHtml(data.summary || "暂无总结")}</p>
+            <h2>当天核心总结</h2>
+            <p>${escapeHtml(report.summary || "暂无总结")}</p>
+        </div>
+
+        <div class="report-section-title">
+            <h2>📌 当天工作内容</h2>
+            <span>${done}/${total} 已完成</span>
         </div>
 
         ${taskHtml}
@@ -997,7 +1061,7 @@ body {
 </html>
 `;
 
-    downloadFile(html, `ROGA_高级每日工作汇报_${data.date}.html`, "text/html;charset=utf-8");
+    downloadFile(html, `ROGA_高级每日工作汇报_${currentDate}.html`, "text/html;charset=utf-8");
 }
 
 function downloadFile(content, filename, type) {
@@ -1018,19 +1082,16 @@ function escapeHtml(str) {
         .replace(/"/g, "&quot;");
 }
 
-document.getElementById("reportDate").addEventListener("input", save);
+document.getElementById("reportDate").addEventListener("change", function() {
+    save();
+    loadDate(this.value);
+});
+
 document.getElementById("reporter").addEventListener("input", save);
 document.getElementById("boss").addEventListener("input", save);
 document.getElementById("summary").addEventListener("input", save);
 
-initDate();
-
-document.getElementById("reporter").value = data.reporter;
-document.getElementById("boss").value = data.boss;
-document.getElementById("summary").value = data.summary;
-
-renderSections();
-save();
+loadDate(currentDate);
 </script>
 
 </body>
